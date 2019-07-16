@@ -1,3 +1,7 @@
+
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <string>
 #include <iostream>
 #include <dirent.h>
@@ -42,7 +46,7 @@ void make_directory(const char *name)
 #endif
 }
 
-list<string> listarArquivos()
+list<string> listFilesInExecutionFolder()
 {
     list<string> listaArquivos;
     DIR *dir;
@@ -151,10 +155,8 @@ void move_file(string fileName)
         return;
     }
 
-    std::cout << endl
-              << fileName;
-
 #ifdef WIN32
+    //TODO
     GetFullPathName(fileName);
 #else
     string folder = getFolder(fileName);
@@ -163,42 +165,36 @@ void move_file(string fileName)
     {
         return;
     }
-    cout << folder << endl;
+    
+    std::cout << endl
+        << "Moving "
+              << fileName
+              << " to "
+              << folder << endl;
 
     char *fileLocation = realpath(fileName.c_str(), NULL);
-    cout << " - " << fileLocation;
-
     char *folderLocation = realpath(folder.c_str(), NULL);
-    cout << " - " << folderLocation;
 
     string newLocation(folderLocation);
 
     newLocation = newLocation + "/" + fileName;
 
-    cout << " - " << newLocation << endl;
+    cout << " old path " << fileLocation << " - new path " << newLocation << endl;
 
-    int OK = rename(fileLocation, newLocation.c_str());
+    //int OK = rename(fileLocation, newLocation.c_str());
 
-    if(OK != 0) {
+    /* if(OK != 0) {
         cout << "An error occour:" << endl << errno << endl; 
-    }
+    }*/
 #endif
 }
 
 int main()
 {
-    list<string> listaArquivos = listarArquivos();
+    list<string> fileList = listFilesInExecutionFolder();
 
-    for (std::list<string>::iterator it = listaArquivos.begin(); it != listaArquivos.end(); ++it)
+    for (std::list<string>::iterator it = fileList.begin(); it != fileList.end(); ++it)
         move_file(*it);
-
-    /*make_directory("Music");
-    make_directory("Videos");
-    make_directory("Pictures");
-    make_directory("Archives");
-    make_directory("Documents");
-    make_directory("Books");
-    make_directory("DEBPackages");
-    make_directory("Programs");
-    make_directory("RPMPackages");*/
 }
+
+#endif // CPPTOML_H
