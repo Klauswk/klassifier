@@ -2,6 +2,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "config.h"
 #include <string>
 #include <iostream>
 #include <dirent.h>
@@ -17,16 +18,6 @@
 #endif
 #include <list>
 using namespace std;
-
-vector<string> arrayOfDirectories = {"Music",
-                                     "Videos",
-                                     "Pictures",
-                                     "Archives",
-                                     "Documents",
-                                     "Books",
-                                     "DEBPackages",
-                                     "Programs",
-                                     "RPMPackages"};
 
 bool regexOk(const string &str, const regex &expression)
 {
@@ -48,14 +39,14 @@ void make_directory(const char *name)
 
 list<string> listFilesInExecutionFolder()
 {
-    list<string> listaArquivos;
+    list<string> listFiles;
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir(GetCurrentDir(0, 0))) != NULL)
     {
         while ((ent = readdir(dir)) != NULL)
         {
-            listaArquivos.push_back(string(ent->d_name));
+            listFiles.push_back(string(ent->d_name));
         }
         closedir(dir);
     }
@@ -64,7 +55,7 @@ list<string> listFilesInExecutionFolder()
         perror("");
     }
 
-    return listaArquivos;
+    return listFiles;
 }
 
 void checkOrCreateFolder(string folder)
@@ -75,7 +66,7 @@ void checkOrCreateFolder(string folder)
     }
 }
 
-bool some(string extension, std::initializer_list<string> list)
+bool some(string extension, list<string> list)
 {
     for (string elem : list)
     {
@@ -88,9 +79,8 @@ bool some(string extension, std::initializer_list<string> list)
     return false;
 }
 
-string getFolder(string fileName)
+string getFolder(Config config, string fileName)
 {
-
     int pos = fileName.rfind('.');
 
     if (pos == -1)
@@ -101,29 +91,10 @@ string getFolder(string fileName)
     string extension = fileName.substr(pos);
     string folder;
 
-    if (some(extension, {".exe", ".msi"}))
-    {
-        folder = "Programs";
-    }
-    else if (some(extension, {".mp3", ".aac", ".flac", ".ogg", ".wma", ".m4a", ".aiff", ".wav", ".amr"}))
-    {
-        folder = "Music";
-    }
-    else if (some(extension, {".flv", ".ogv", ".avi", ".mp4", ".mpg", ".mpeg", ".3gp", ".mkv", ".ts", ".webm", ".vob", ".wmv"}))
-    {
-        folder = "Videos";
-    }
-    else if (some(extension, {".png", ".jpeg", ".gif", ".jpg", ".bmp", ".svg", ".webp", ".psd", ".tiff"}))
-    {
-        folder = "Pictures";
-    }
-    else if (some(extension, {".rar", ".zip", ".7z", ".gz", ".bz2", ".tar", ".dmg", ".tgz", ".xz", ".iso", ".cpio", ".deb", ".rpm"}))
-    {
-        folder = "Archives";
-    }
-    else if (some(extension, {".txt", ".pdf", ".doc", ".docx", ".odf", ".xls", ".xlsx", ".ppt", ".ptx", ".ppsx", ".odt", ".ods", ".md", ".json", ".csv"}))
-    {
-        folder = "Documents";
+    for(string key : config.getKeys()) {
+        if(some(extension, config.getValues(key))) {
+            folder = key;
+        }
     }
 
     checkOrCreateFolder(folder);
@@ -131,9 +102,9 @@ string getFolder(string fileName)
     return folder;
 }
 
-bool checkForIgnoredFilenames(string fileName)
+bool checkForIgnoredFilenames(list<string> directories, string fileName)
 {
-    for (string directory : arrayOfDirectories)
+    for (string directory : directories)
     {
         if (directory == fileName)
         {
@@ -147,10 +118,9 @@ bool checkForIgnoredFilenames(string fileName)
     return false;
 }
 
-void move_file(string fileName)
+void move_file(Config config, string fileName)
 {
-
-    if (checkForIgnoredFilenames(fileName))
+    if (checkForIgnoredFilenames(config.getKeys(), fileName))
     {
         return;
     }
@@ -159,15 +129,15 @@ void move_file(string fileName)
     //TODO
     GetFullPathName(fileName);
 #else
-    string folder = getFolder(fileName);
+    string folder = getFolder(config, fileName);
 
     if (folder.size() < 1)
     {
         return;
     }
-    
+
     std::cout << endl
-        << "Moving "
+              << "Moving "
               << fileName
               << " to "
               << folder << endl;
@@ -191,10 +161,14 @@ void move_file(string fileName)
 
 int main()
 {
+    Config config("config.ini");
+    
     list<string> fileList = listFilesInExecutionFolder();
 
     for (std::list<string>::iterator it = fileList.begin(); it != fileList.end(); ++it)
-        move_file(*it);
+        move_file(config, *it);
+
+    return 0;
 }
 
-#endif // CPPTOML_H
+#endif // MAIN_H
