@@ -24,7 +24,7 @@
                             <File Id='Klassifier.exe' Name='klassifier.exe'
                              DiskId='1' Source='klassifier.exe' KeyPath='yes'>
                             </File>
-                            <RegistryValue Root='HKCU' Key='Software\Classes\Directory\Background\shell\Klassifier\command' Type='string' Value='[INSTALLDIR]klassifier.exe' />
+                            <RegistryValue Root='HKLM' Key='Software\Classes\Directory\Background\shell\Klassifier\command' Type='string' Value='[INSTALLDIR]klassifier.exe' />
                         </Component>
                     </Directory>
                 </Directory>
