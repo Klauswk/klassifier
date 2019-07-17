@@ -29,7 +29,7 @@ void Config::addToMap(string str)
 
     cout << key << " - value " << value  << endl;
 
-    map[key] = split(value, ',');
+    mmap[key] = split(value, ',');
 
     keys.push_back(key);
 }
@@ -41,7 +41,7 @@ list<string> Config::getKeys()
 
 list<string> Config::getValues(string key)
 {
-    return map.at(key);
+    return mmap.at(key);
 }
 
 list<string> Config::split(const string& s, char delimiter)

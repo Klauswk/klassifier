@@ -13,7 +13,7 @@ using namespace std;
 class Config
 {
 private:
-    map<string,list<string>> map;
+    map<string,list<string>> mmap;
     list<string> keys;
     void addToMap(string);
     list<string> split(const string&, char);
