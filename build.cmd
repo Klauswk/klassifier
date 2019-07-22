@@ -1,1 +1,4 @@
-g++ config.cpp main.cpp -o klassifier -lshlwapi
+mkdir build
+cd build
+cmake -G "MinGW Makefiles" ..
+make klassifier
